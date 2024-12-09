@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 using namespace std;
 
 int main()
@@ -9,52 +8,60 @@ int main()
     ifstream file("../input");
     char ch;
     bool is_file = true;
-    struct Span
-    {
-        size_t offset;
-        unsigned char size;
-    };
-    vector<Span> files, spaces;
-    size_t offset = 0;
+    typedef unsigned char Size;
+    vector<Size> files, spaces;
     while (file >> ch)
     {
-        const unsigned char sz = ch - '0';
+        const Size sz = ch - '0';
         if (is_file)
         {
-            files.push_back({offset, sz});
+            files.push_back(sz);
         }
         else
         {
-            spaces.push_back({offset, sz});
+            spaces.push_back(sz);
         }
-        offset += sz;
+
         is_file = !is_file;
     }
 
     unsigned long ans = 0;
-    const auto consec_sum = [](size_t start, size_t cnt) -> size_t
-    {
-        // use gauss theorem
-        return (start * 2 - 1 + cnt) * cnt / 2;
-    };
 
-    for (size_t r = files.size() - 1; r >= 1; r--)
+    size_t pos = 0;
+    size_t static_idx = 0, space_idx = 0, move_idx = files.size() - 1;
+    bool is_space = false;
+    while (true)
     {
-        const auto &file = files[r];
-        const auto iter_end = next(begin(spaces), r);
-        auto space = find_if(begin(spaces), iter_end, [&file](const auto &space)
-                             { return space.size >= file.size; });
-        if (space == iter_end)
+        if (!is_space)
         {
-            // remains in place
-            ans += (consec_sum(file.offset, file.size)) * r;
-        }
-        else
-        {
-            // we can slot it
-            ans += (consec_sum(space->offset, file.size)) * r;
-            space->size -= file.size;
-            space->offset += file.size;
+            if (files[static_idx] == 0)
+            {
+                is_space = true;
+                static_idx++;
+            }
+            else
+            {
+                ans += pos * static_idx;
+                files[static_idx]--;
+                pos++;
+            }
+        } else {
+            if (move_idx <= space_idx) {
+                break;
+            }
+            if (spaces[space_idx] == 0) {
+                is_space = false;
+                space_idx++;
+            } else {
+                if (files[move_idx] == 0) {
+                    move_idx--;
+                } else {
+                    ans += pos * move_idx;
+                    files[move_idx]--;
+                    spaces[space_idx]--;
+                    pos++;
+                }
+            }
         }
     }
 

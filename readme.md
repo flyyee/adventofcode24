@@ -3,3 +3,6 @@ Last year, I completed the AoC using [mostly Rust](https://github.com/flyyee/adv
 1. Don't write unnecessarily complicated code (unless it's an interesting system)
 2. Experiment with modern C++ features (C++20)
 3. Brush up on C++ best practices
+
+
+Compiled with: `g++ -std=c++20 -Wall -Werror -O3 -g -fsanitize={address,undefined} src.cpp && ./a.out`
